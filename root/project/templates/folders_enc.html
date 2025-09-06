@@ -1,0 +1,323 @@
+<!-- YOUR ENTIRE HTML WITH EYE TOGGLE INCLUDED -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Encrypt Folder - Penguin Crypt</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet"/>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --text-color: #f0f0f0;
+            --accent-color: #00ffc3;
+            --secondary-color: #1f1f1f;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Fira Code', monospace;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 2rem;
+        }
+
+        h1 {
+            color: var(--accent-color);
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .alert-box {
+            background-color: #1e1e1e;
+            border-left: 4px solid var(--accent-color);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            color: #ccc;
+            font-size: 0.9rem;
+        }
+
+        .btn-outline-light {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .btn-outline-light:hover {
+            background-color: var(--accent-color);
+            color: #121212;
+        }
+
+        .upload-container {
+            background: var(--secondary-color);
+            border-radius: 1rem;
+            box-shadow: 0 0 20px rgba(0, 255, 195, 0.1);
+            padding: 2rem;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .form-label {
+            font-weight: bold;
+        }
+
+        .form-control, .form-select {
+            background-color: #2b2b2b;
+            color: var(--text-color);
+            border: 1px solid #444;
+        }
+
+        .form-select {
+            background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 4 5' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%2300ffc3' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 8px 10px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.2rem rgba(0, 255, 195, 0.25);
+        }
+
+        .btn-accent {
+            background-color: var(--accent-color);
+            color: #121212;
+            border: none;
+        }
+
+        .btn-accent:hover {
+            background-color: #00e6b1;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        footer {
+            margin-top: 3rem;
+            font-size: 0.9rem;
+            color: #aaa;
+            text-align: center;
+        }
+
+        #folderStatus span {
+            font-size: 0.9rem;
+            color: var(--text-color);
+        }
+
+        #clearFolderBtn {
+            padding: 0.15rem 0.5rem;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>📁 Encrypt Folder</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert mt-3 px-3 py-2 
+                    {% if category == 'success' %}alert-success
+                    {% elif category == 'danger' %}alert-danger
+                    {% elif category == 'warning' %}alert-warning
+                    {% else %}alert-info{% endif %}" 
+                    role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="alert-box">
+        <strong>⚠️ The folder you select will first be compressed into a tar.gz archive and then encrypted using the selected GPG options.</strong> 
+    </div>
+
+    <a href="{{ url_for('folder_page.folders_home') }}" class="btn btn-outline-light mb-4">← Back to Folders</a>
+
+    <div class="upload-container">
+        <form action="{{ url_for('folder_page.encrypt_folder') }}" method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="folder" class="form-label">Select a folder:</label>
+                <input class="form-control hidden" type="file" id="folder" name="folder" webkitdirectory directory multiple required>
+                <button type="button" class="btn btn-outline-light w-100 mb-2" id="folderPickerBtn">📁 Choose Folder</button>
+
+                <div id="folderStatus" class="text-muted d-flex align-items-center justify-content-between">
+                    <span id="folderName">No folder selected</span>
+                    <button type="button" id="clearFolderBtn" class="btn btn-sm btn-outline-danger hidden">❌</button>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="algorithm" class="form-label">Select encryption algorithm:</label>
+                <select class="form-select" id="algorithm" name="algorithm" required>
+                    <option value="" disabled selected>Select encryption method</option>
+                    <option value="gpg">GPG</option>
+                </select>
+            </div>
+
+            <div id="gpg-mode" class="mb-3 hidden">
+                <label for="gpg_mode" class="form-label">GPG Mode:</label>
+                <select class="form-select" id="gpg_mode" name="gpg_mode" required>
+                    <option value="" disabled selected>Select GPG mode</option>
+                    <option value="symmetric">Symmetric</option>
+                    <option value="asymmetric">Asymmetric</option>
+                </select>
+            </div>
+
+            <div id="gpg-symmetric-options" class="mb-3 hidden">
+                <label for="gpg_sym_algo" class="form-label">Select Symmetric Algorithm:</label>
+                <select class="form-select" id="gpg_sym_algo" name="gpg_sym_algo" required>
+                    <option value="" disabled selected>Select algorithm</option>
+                    <option value="AES256">AES256</option>
+                    <option value="AES192">AES192</option>
+                    <option value="AES128">AES128</option>
+                </select>
+            </div>
+
+            <div class="mb-3 hidden" id="passphrase-box">
+                <label for="passphrase" class="form-label">Enter a passphrase:</label>
+                <div class="input-group">
+                    <input type="password" class="form-control" id="passphrase" name="passphrase" required>
+                    <button class="btn btn-outline-light" type="button" id="togglePassphrase">👁️</button>
+                </div>
+            </div>
+
+            <div id="gpg-asymmetric-options" class="mb-3 hidden">
+                <div id="select-existing-email" class="mt-3">
+                    <label for="gpg_recp_email" class="form-label">Recipient Email:</label>
+                    <select class="form-select" id="gpg_recp_email" name="gpg_recp_email">
+                        <option value="" disabled selected>Loading emails...</option>
+                    </select>
+                </div>
+                <div id="asymmetric-warning" class="mt-2 alert alert-warning hidden" style="font-size: 0.9rem;">
+                    ⚠️ To use asymmetric encryption, you must <strong>import or create a GPG key</strong>. If your system already have GPG keys you can select them from the dropdown or <strong>go <a href='/keys/'>here</a> to create or import new key.</strong>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-accent w-100">Encrypt Folder</button>
+        </form>
+        {% if encrypted_file %}
+            <div class="mt-3 text-center">
+                <a href="{{ url_for('folder_page.download_file', filename=encrypted_file) }}" class="btn btn-outline-success">
+                    ⬇️ Download Encrypted File
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <footer>Open Source Encryption Webtool for Linux</footer>
+
+<script>
+    const algorithmSelect = document.getElementById("algorithm");
+    const gpgModeSelect = document.getElementById("gpg_mode");
+    const gpgModeWrapper = document.getElementById("gpg-mode");
+    const gpgSymmetricOptions = document.getElementById("gpg-symmetric-options");
+    const gpgAsymmetricOptions = document.getElementById("gpg-asymmetric-options");
+    const passphraseBox = document.getElementById("passphrase-box");
+    const passphraseInput = document.getElementById("passphrase");
+    const gpgSymAlgo = document.getElementById("gpg_sym_algo");
+    const gpgRecpEmail = document.getElementById("gpg_recp_email");
+    const selectEmailBox = document.getElementById("select-existing-email");
+
+    const folderInput = document.getElementById("folder");
+    const folderBtn = document.getElementById("folderPickerBtn");
+    const folderNameDisplay = document.getElementById("folderName");
+    const clearFolderBtn = document.getElementById("clearFolderBtn");
+
+    folderBtn.addEventListener("click", () => {
+        folderInput.click();
+    });
+
+    folderInput.addEventListener("change", () => {
+        if (folderInput.files.length > 0) {
+            const path = folderInput.files[0].webkitRelativePath;
+            const folderName = path.split('/')[0];
+            folderNameDisplay.textContent = `📂 Selected: ${folderName}`;
+            clearFolderBtn.classList.remove("hidden");
+        } else {
+            folderNameDisplay.textContent = "No folder selected";
+            clearFolderBtn.classList.add("hidden");
+        }
+    });
+
+    clearFolderBtn.addEventListener("click", () => {
+        folderInput.value = "";
+        folderNameDisplay.textContent = "No folder selected";
+        clearFolderBtn.classList.add("hidden");
+    });
+
+    algorithmSelect.addEventListener("change", function () {
+        const isGPG = this.value === "gpg";
+        gpgModeWrapper.classList.toggle("hidden", !isGPG);
+        gpgSymmetricOptions.classList.add("hidden");
+        gpgAsymmetricOptions.classList.add("hidden");
+        passphraseBox.classList.add("hidden");
+        selectEmailBox.classList.add("hidden");
+
+        gpgModeSelect.required = isGPG;
+        gpgSymAlgo.required = false;
+        gpgRecpEmail.required = false;
+        passphraseInput.required = false;
+    });
+
+    gpgModeSelect.addEventListener("change", function () {
+        const isSymmetric = this.value === "symmetric";
+        const isAsymmetric = this.value === "asymmetric";
+        const asymmetricWarning = document.getElementById("asymmetric-warning");
+
+        gpgSymmetricOptions.classList.toggle("hidden", !isSymmetric);
+        gpgAsymmetricOptions.classList.toggle("hidden", !isAsymmetric);
+        passphraseBox.classList.toggle("hidden", !isSymmetric);
+
+        gpgSymAlgo.required = isSymmetric;
+        passphraseInput.required = isSymmetric;
+
+        if (isAsymmetric) {
+            asymmetricWarning.classList.remove("hidden");
+            selectEmailBox.classList.remove("hidden");
+            gpgRecpEmail.required = true;
+            loadEmails();
+        }
+        else {
+            asymmetricWarning.classList.add("hidden");
+        }
+    });
+
+    function loadEmails() {
+        fetch("/gpg/emails")
+            .then(response => response.json())
+            .then(data => {
+                gpgRecpEmail.innerHTML = '<option value="" disabled selected>Select recipient</option>';
+                if (data.emails.length === 0) {
+                    const option = document.createElement("option");
+                    option.disabled = true;
+                    option.textContent = "⚠️ No GPG keys found";
+                    gpgRecpEmail.appendChild(option);
+                } else {
+                    data.emails.forEach(email => {
+                        const option = document.createElement("option");
+                        option.value = email;
+                        option.textContent = email;
+                        gpgRecpEmail.appendChild(option);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error("Failed to load GPG emails:", error);
+            });
+    }
+
+    document.getElementById("togglePassphrase").addEventListener("click", function () {
+        const input = document.getElementById("passphrase");
+        const type = input.getAttribute("type") === "password" ? "text" : "password";
+        input.setAttribute("type", type);
+        this.textContent = type === "password" ? "👁️" : "🙈";
+    });
+</script>
+</body>
+</html>

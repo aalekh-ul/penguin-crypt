@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Generate GPG Key - Penguin Crypt</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      background-color: #121212;
+      color: #f0f0f0;
+      font-family: 'Fira Code', monospace;
+      padding: 2rem;
+    }
+    .form-section {
+      background-color: #1f1f1f;
+      padding: 2rem;
+      border-radius: 1rem;
+      max-width: 700px;
+      margin: 0 auto;
+      box-shadow: 0 0 15px rgba(0,255,195,0.1);
+    }
+    h1 {
+      color: #00ffc3;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .form-label, .form-check-label {
+      font-weight: bold;
+    }
+    .form-text {
+     color: #f0f0f0;
+    }
+    .btn-accent {
+      background-color: #00ffc3;
+      color: #121212;
+      font-weight: bold;
+    }
+    .btn-accent:hover {
+      background-color: #00e6b1;
+    }
+    .btn-outline-light {
+      border-color: #00ffc3;
+      color: #00ffc3;
+    }
+    .btn-outline-light:hover {
+      background-color: #00ffc3;
+      color: #121212;
+    }
+    footer {
+      margin-top: 3rem;
+      font-size: 0.9rem;
+      color: #aaa;
+      text-align: center;
+    }
+    .pass-toggle {
+      position: relative;
+    }
+
+    .pass-toggle i {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #109710;
+    }
+    
+  </style>
+</head>
+<body>
+
+<h1 class="text-center">🔑 Generate GPG Key</h1>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert mt-3 px-3 py-2 
+                    {% if category == 'success' %}alert-success
+                    {% elif category == 'danger' %}alert-danger
+                    {% elif category == 'warning' %}alert-warning
+                    {% else %}alert-info{% endif %}" 
+                    role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+   {% endwith %}
+<div class="text-center mb-4">
+  <a href="{{ url_for('keys_page.keys_home') }}" class="btn btn-outline-light">← Back to Key Management</a>
+</div>
+
+<div class="form-section">
+  <div class="form-section">
+    
+    <form action="{{ url_for('keys_page.create_key') }}" method="POST">
+      
+      <div class="mb-3">
+        <label for="expiry" class="form-label">Select Key Type</label>
+        <select class="form-select" name="key_type" id="key_type" required>
+          <option value="0" disabled>Select Type</option>
+          <option value="RSA and RSA (default)">RSA and RSA (default)</option>
+          <option value="DSA and Elgamal">DSA and Elgamal</option>
+          <option value="DSA (sign only)">DSA (sign only)</option>
+          <option value="RSA (sign only)">RSA (sign only)</option>
+        </select>
+      </div>
+
+      <!-- Key Size -->
+      <div class="mb-3">
+        <label for="key_size" class="form-label">Key Size:</label>
+        <input type="number" class="form-control" id="key_size" name="key_size" value="2048" required>
+        <div class="form-text">RSA: 1024–4096, DSA: 1024–3072</div>
+      </div>
+
+      <!-- Key Expiry -->
+      <div class="mb-3">
+        <label for="expiry" class="form-label">Key Validity Period:</label>
+        <select class="form-select" name="expiry" id="expiry" required>
+          <option value="0">Never Expire</option>
+          <option value="7d">1 Week</option>
+          <option value="30d">30 Days</option>
+          <option value="90d">3 Months</option>
+          <option value="180d">6 Months</option>
+          <option value="365d">1 Year</option>
+        </select>
+      </div>
+
+      <!-- User Details -->
+      <div class="mb-3">
+        <label for="real_name" class="form-label">Real Name:</label>
+        <input type="text" class="form-control" name="real_name" id="real_name" required>
+      </div>
+      <div class="mb-3">
+        <label for="email" class="form-label">Email Address:</label>
+        <input type="email" class="form-control" name="email" id="email" required>
+      </div>
+      <div class="mb-3">
+        <label for="password" class="form-label">Passphrase:</label>
+        <div class="input-group">
+          <input type="password" class="form-control" name="password" id="password">
+          <button type="button" class="btn btn-outline-light" id="togglePassphrase">👁️</button>
+        </div>
+        <div class="form-text" style="color: #00e6b1;">Create a Strong Passphrase</div>
+      </div>
+
+      <button type="submit" class="btn btn-accent w-100 mt-3">Generate Key</button>
+    </form>
+  
+  </div>
+<footer>Open Source Webtool for GPG Key Management</footer>
+
+<script>
+      const toggleBtn = document.getElementById("togglePassphrase");
+    toggleBtn.addEventListener("click", () => {
+        const input = document.getElementById("password");
+        const isHidden = input.type === "password";
+        input.type = isHidden ? "text" : "password";
+        toggleBtn.textContent = isHidden ? "🙈" : "👁️";
+    });
+</script>
+
+</body>
+</html>

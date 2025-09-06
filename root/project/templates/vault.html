@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🗄️ Vault - Penguin Crypt</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #121212;
+      color: #f0f0f0;
+      font-family: 'Fira Code', monospace;
+      padding: 2rem;
+    }
+    h1 {
+      color: #00ffc3;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .vault-container {
+      background-color: #1f1f1f;
+      padding: 2rem;
+      border-radius: 1rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      box-shadow: 0 0 15px rgba(0, 255, 195, 0.1);
+    }
+    .table-dark {
+      background-color: #2c2c2c;
+      color: #f0f0f0;
+    }
+    .btn-outline-light {
+      border-color: #00ffc3;
+      color: #00ffc3;
+    }
+    .btn-outline-light:hover {
+      background-color: #00ffc3;
+      color: #121212;
+    }
+    .filter-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      justify-content: space-between;
+    }
+    .filter-container .form-control,
+    .filter-container .form-select {
+      background-color: #2b2b2b;
+      color: #f0f0f0;
+      border: 1px solid #444;
+    }
+    .filter-container .form-control:focus,
+    .filter-container .form-select:focus {
+      border-color: #00ffc3;
+      box-shadow: 0 0 0 0.2rem rgba(0, 255, 195, 0.25);
+    }
+    .d-flex.align-items-end button {
+      margin-right: 1rem;
+    }
+    /* Style for dropdown arrow */
+    select.form-select {
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300ffc3'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      background-size: 1rem;
+    }
+    /* Calendar input icon (for Chrome/Edge/Safari) */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(73%) sepia(100%) saturate(345%) hue-rotate(100deg) brightness(103%) contrast(97%);
+      cursor: pointer;
+    }
+    /* For Firefox */
+    input[type="date"] {
+      color-scheme: dark;
+    }
+    .input-group input {
+      padding-right: 1.5rem;
+    }
+    .toggle-eye {
+      border: none;
+      background-color: #2b2b2b;
+      color: #00ffc3;
+      font-size: 1rem;
+    }
+    .toggle-eye:hover {
+      background-color: #00ffc3;
+      color: #121212;
+    }
+
+    .add-cred-card-horizontal {
+      background-color: #1f1f1f;
+      padding: 1.5rem;
+      border-radius: 1rem;
+      max-width: 1200px;
+      margin: 1rem auto;
+      box-shadow: 0 0 15px rgba(0,255,195,0.1);
+    }
+
+    .add-cred-card-horizontal .form-control {
+      background-color: #2b2b2b;
+      color: #f0f0f0;
+      border: 1px solid #444;
+    }
+
+    .add-cred-card-horizontal .form-control:focus {
+      border-color: #00ffc3;
+      box-shadow: 0 0 0 0.2rem rgba(0, 255, 195, 0.25);
+    }
+
+    .add-cred-card-horizontal .btn-accent {
+      background-color: #00ffc3;
+      color: #121212;
+      font-weight: bold;
+    }
+
+    .add-cred-card-horizontal .btn-accent:hover {
+      background-color: #00e6b1;
+    }
+
+   
+    .add-cred-card-horizontal input::placeholder {
+      color: #f0f0f0;
+      opacity: 1; /* Firefox needs this to override default faded look */
+    }
+
+  
+    .add-cred-card-horizontal input::-webkit-input-placeholder { color: #f0f0f0; opacity:1; }
+    .add-cred-card-horizontal input:-ms-input-placeholder      { color: #f0f0f0; opacity:1; }
+    .add-cred-card-horizontal input::-ms-input-placeholder     { color: #f0f0f0; opacity:1; }
+    .add-cred-card-horizontal input:-moz-placeholder           { color: #f0f0f0; opacity:1; }
+    .add-cred-card-horizontal input::-moz-placeholder          { color: #f0f0f0; opacity:1; }
+
+
+  </style>
+</head>
+<body>
+
+  <h1>🔐 Vault</h1>
+  <div class="text-center mt-4">
+    <a href="{{ url_for('index.landing_page') }}" class="btn btn-outline-light">← Back to Home</a>
+  </div>
+
+  <!-- Add Personal Credential Section -->
+  <div class="add-cred-card-horizontal">
+    <form class="row g-3 align-items-end" method="POST" action="{{ url_for('vault_page.add_creds') }}">
+      <div class="col-md-4">
+        <label for="cred_name" class="form-label">Name / URL</label>
+        <input type="text" class="form-control" id="cred_name" name="cred_name" placeholder="e.g., www.example.com/Github/Email" required>
+      </div>
+      <div class="col-md-4">
+        <label for="cred_password" class="form-label">Password</label>
+        <div class="input-group">
+          <input type="password" class="form-control" id="cred_password" name="cred_password" required>
+          <button type="button" class="btn btn-outline-light" id="toggleCredPassword">👁️</button>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <button type="submit" class="btn btn-accent w-100">Save to Vault</button>
+      </div>
+    </form>
+  </div>
+
+
+  <div class="vault-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Filter Section -->
+    <form method="GET" action="{{ url_for('vault_page.vault_home') }}">
+      <div class="filter-container">
+        <div>
+          <label for="type" class="form-label">Filter by Type</label>
+          <select name="type" id="type" class="form-select">
+            <option value="">All</option>
+            <option value="file" {% if request.args.get('type') == 'file' %}selected{% endif %}>File</option>
+            <option value="folder" {% if request.args.get('type') == 'folder' %}selected{% endif %}>Folder</option>
+            <option value="gpg key" {% if request.args.get('type') == 'key' %}selected{% endif %}>GPG Key</option>
+            <option value="creds" {% if request.args.get('type') == 'creds' %}selected{% endif %}>Credentials</option>
+          </select>
+        </div>
+        <div>
+          <label for="from_date" class="form-label">From Date</label>
+          <input type="date" name="from_date" id="from_date" class="form-control" 
+                 value="{{ request.args.get('from_date', '') }}">
+        </div>
+        <div>
+          <label for="to_date" class="form-label">To Date</label>
+          <input type="date" name="to_date" id="to_date" class="form-control" 
+                 value="{{ request.args.get('to_date', '') }}">
+        </div>
+        <div class="d-flex align-items-end">
+          <button type="submit" class="btn btn-outline-light">Search</button>
+          <a href="{{ url_for('vault_page.vault_home') }}" class="btn btn-outline-light">Reset</a>
+        </div>
+      </div>
+    </form>
+
+    {% if records %}
+      <table class="table table-dark table-striped table-hover mt-4">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Type</th>
+            <th scope="col">Name</th>
+            <th scope="col">Password</th>
+            <th scope="col">Created At</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for record in records %}
+            <tr>
+              <th scope="row">{{ loop.index }}</th>
+              <td>{{ record.entry_type }}</td>
+              <td>{{ record.name }}</td>
+              <td>
+                <div class="input-group">
+                  <input type="password" class="form-control bg-dark text-light border-0 password-field" 
+                         value="{{ record.passphrase_enc }}" readonly>
+                  <button type="button" class="btn btn-outline-light toggle-eye">👁️</button>
+                </div>
+              </td>
+              <td>{{ record.created_at.strftime('%Y-%m-%d') if record.created_at else '—' }}</td>
+              <td>
+                <form method="POST" action="{{ url_for('vault_page.delete_cred', cred_id=record.id) }}" style="display:inline;">
+                  <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this record?');">🗑️</button>
+                </form>
+            </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="text-center" style="color: #00ffc3;"> No records stored in the vault.</p>
+    {% endif %}
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> 
+  <script>
+    // Toggle for newly-added credential password
+    const toggleCredPasswordBtn = document.getElementById("toggleCredPassword");
+    if (toggleCredPasswordBtn) {
+      toggleCredPasswordBtn.addEventListener("click", () => {
+        const input = document.getElementById("cred_password");
+        const isHidden = input.type === "password";
+        input.type = isHidden ? "text" : "password";
+        toggleCredPasswordBtn.textContent = isHidden ? "🙈" : "👁️";
+      });
+    }
+
+    // Toggle for each record row in the table
+    document.querySelectorAll(".toggle-eye").forEach(button => {
+      button.addEventListener("click", () => {
+        const input = button.closest(".input-group").querySelector(".password-field");
+        if (input.type === "password") {
+          input.type = "text";
+          button.textContent = "🙈";
+        } else {
+          input.type = "password";
+          button.textContent = "👁️";
+        }
+      });
+    });
+  </script>
+</body>
+</html>

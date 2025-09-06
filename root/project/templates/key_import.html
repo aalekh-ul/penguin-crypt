@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Import GPG Key - Penguin Crypt</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      background-color: #121212;
+      color: #f0f0f0;
+      font-family: 'Fira Code', monospace;
+      padding: 2rem;
+    }
+    h1 {
+      color: #00ffc3;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .form-section {
+      background-color: #1f1f1f;
+      padding: 2rem;
+      border-radius: 1rem;
+      max-width: 600px;
+      margin: 0 auto;
+      box-shadow: 0 0 15px rgba(0,255,195,0.1);
+    }
+    .btn-accent {
+      background-color: #00ffc3;
+      color: #121212;
+      font-weight: bold;
+    }
+    .btn-accent:hover {
+      background-color: #00e6b1;
+    }
+    .btn-outline-light {
+      border-color: #00ffc3;
+      color: #00ffc3;
+    }
+    .btn-outline-light:hover {
+      background-color: #00ffc3;
+      color: #121212;
+    }
+    footer {
+      margin-top: 3rem;
+      font-size: 0.9rem;
+      color: #aaa;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <script>alert('Be careful while importing keys, only import trusted keys on your system')</script>
+  <h1>📥 Import GPG Key</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert mt-3 px-3 py-2 
+                    {% if category == 'success' %}alert-success
+                    {% elif category == 'danger' %}alert-danger
+                    {% elif category == 'warning' %}alert-warning
+                    {% else %}alert-info{% endif %}" 
+                    role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+  <div class="text-center mb-4">
+    <a href="{{ url_for('keys_page.keys_home') }}" class="btn btn-outline-light">← Back to Key Management</a>
+  </div>
+
+  <div class="form-section">
+    <form action="{{ url_for('keys_page.import_key') }}" method="POST" enctype="multipart/form-data">
+      <div class="mb-3">
+        <label for="gpg_key_file" class="form-label">Choose a .asc Key File:</label>
+        <input class="form-control" type="file" id="gpg_key_file" name="gpg_key_file" accept=".asc" required>
+        <div class="form-text text-white">Only .asc GPG key files are supported.</div>
+      </div>
+      <button type="submit" class="btn btn-accent w-100 mt-3">Import Key</button>
+    </form>
+  </div>
+  <footer>Open Source Webtool for GPG Key Management</footer>
+
+</body>
+</html>

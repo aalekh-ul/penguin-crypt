@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Decrypt File - Penguin Crypt</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-color: #121212;
+      --text-color: #f0f0f0;
+      --accent-color: #00ffc3;
+      --secondary-color: #1f1f1f;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Fira Code', monospace;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 2rem;
+    }
+
+    h1 {
+      color: var(--accent-color);
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .btn-outline-light {
+      border-color: var(--accent-color);
+      color: var(--accent-color);
+    }
+
+    .btn-outline-light:hover {
+      background-color: var(--accent-color);
+      color: #121212;
+    }
+
+    .upload-container {
+      background: var(--secondary-color);
+      border-radius: 1rem;
+      box-shadow: 0 0 20px rgba(0, 255, 195, 0.1);
+      padding: 2rem;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .form-label {
+      font-weight: bold;
+    }
+
+    .form-control {
+      background-color: #2b2b2b;
+      color: var(--text-color);
+      border: 1px solid #444;
+    }
+
+    .form-control:focus {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 0.2rem rgba(0, 255, 195, 0.25);
+    }
+
+    .btn-accent {
+      background-color: var(--accent-color);
+      color: #121212;
+      border: none;
+    }
+
+    .btn-accent:hover {
+      background-color: #00e6b1;
+    }
+
+    footer {
+      margin-top: 3rem;
+      font-size: 0.9rem;
+      color: #aaa;
+      text-align: center;
+    }
+
+    .pass-toggle {
+      position: relative;
+    }
+
+    .pass-toggle i {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #109710;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔓📄 Decrypt File</h1>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert mt-3 px-3 py-2 
+          {% if category == 'success' %}alert-success
+          {% elif category == 'danger' %}alert-danger
+          {% elif category == 'warning' %}alert-warning
+          {% else %}alert-info{% endif %}" 
+          role="alert">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+  {% endwith %}
+
+  <a href="{{ url_for('files_page.files_home') }}" class="btn btn-outline-light mb-4">← Back to Files</a>
+
+  <div class="upload-container">
+    <form method="POST" action="{{ url_for('files_page.decrypt_files') }}" enctype="multipart/form-data">
+      <div class="mb-3">
+        <label for="encrypted_file" class="form-label">Choose a file to decrypt:</label>
+        <input type="file" class="form-control" id="encrypted_file" name="encrypted_file" accept=".gpg" required>
+      </div>
+
+      <div class="mb-3" id="passphrase-box">
+        <label for="passphrase" class="form-label">Enter passphrase:</label>
+        <div class="input-group">
+          <input type="password" class="form-control pe-5" id="passphrase" name="passphrase" required>
+          <button type="button" class="btn btn-outline-light" id="togglePassphrase">👁️</button>
+        </div>
+        <div class="form-text" style="color: #00e6b1;">This should match the encryption passphrase.</div>
+      </div>
+
+
+      <button type="submit" class="btn btn-accent w-100">Decrypt File</button>
+    </form>
+
+    {% if decrypted_file %}
+    <div class="mt-3 text-center">
+      <a href="{{ url_for('files_page.download_file', filename=decrypted_file) }}" class="btn btn-outline-success">
+        ⬇️ Download Decrypted File
+      </a>
+    </div>
+    {% endif %}
+  </div>
+
+  <footer>Open Source Decryption Webtool for Linux</footer>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <script>
+
+    const toggleBtn = document.getElementById("togglePassphrase");
+    toggleBtn.addEventListener("click", () => {
+      const input = document.getElementById("passphrase");
+      const isHidden = input.type === "password";
+      input.type = isHidden ? "text" : "password";
+      toggleBtn.textContent = isHidden ? "🙈" : "👁️";
+    });
+
+  </script>
+</body>
+</html>
