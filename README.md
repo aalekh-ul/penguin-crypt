@@ -24,6 +24,8 @@ It turns complex Linux command-line encryption/decryption into a simple browser-
 
 ---
 
+![Image](https://github.com/user-attachments/assets/6748e309-d2e5-4175-806e-afc1e3d433b5)
+
 ## 🐳 Run with Docker
 
 You don’t need to install dependencies manually — Penguin Crypt ships as a Docker image.
