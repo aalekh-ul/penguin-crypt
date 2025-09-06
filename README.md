@@ -9,13 +9,13 @@ It turns complex Linux command-line encryption/decryption into a simple browser-
 
 - 🔐 **File Encryption/Decryption**  
   - Encrypt/Decrypt files using GPG symmetric and asymmetric modes.  
-  - Import,Create,Manage/Delete GPG keys through the web UI.  
+  - Import, Create, Manage/Delete GPG keys through the web UI.  
 
 - 📂 **Folder Encryption**  
   - Upload folders (tarball compression supported) and encrypt/decrypt them.  
 
 - 🔑 **Vault Manager**  
-  - Encrypted SQLCipher database to store file,folder and personal passwords.  
+  - Encrypted SQLCipher database to store file, folder and personal passwords.  
   - Protected with your passphrase.
 
 - 🌐 **Web UI**  
